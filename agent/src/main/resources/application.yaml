@@ -1,3 +1,14 @@
 spring:
   application:
     name: agent
+
+logging:
+  file:
+    name: logs/agent.log
+
+  level:
+    root: DEBUG
+
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{correlationId}] %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{correlationId}] %logger{36} - %msg%n"

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Configuration status="WARN">
+
+    <Properties>
+
+        <!--
+            Example:
+            INFO  | 29 Sep 12:30:45.123 | Pre-check-in event received | reservationNumber=RES-100245
+        -->
+        <Property name="LOG_PATTERN">
+            %-5level | %d{dd MMM HH:mm:ss.SSS} | %msg%n
+        </Property>
+
+        <!-- Console can remain shorter -->
+        <Property name="CONSOLE_PATTERN">
+            [%C{1}:%L] %msg%n
+        </Property>
+
+        <Property name="FILE_DIR">
+            /var/log/casadigi/core/
+        </Property>
+
+        <Property name="FILE_NAME">
+            casadigi-core.log
+        </Property>
+
+    </Properties>
+
+    <CustomLevels>
+        <CustomLevel name="USAGE" intLevel="350"/>
+        <CustomLevel name="VOICE" intLevel="340"/>
+    </CustomLevels>
+
+    <Appenders>
+
+        <!-- ==================== FILE APPENDER ==================== -->
+
+        <RollingRandomAccessFile
+                name="logfile"
+                fileName="${FILE_DIR}${FILE_NAME}"
+                filePattern="${FILE_DIR}${FILE_NAME}.%d{yyyy-MM-dd}-%i.gz">
+
+            <PatternLayout>
+                <Pattern>${LOG_PATTERN}</Pattern>
+            </PatternLayout>
+
+            <Policies>
+
+                <TimeBasedTriggeringPolicy interval="1"/>
+
+                <SizeBasedTriggeringPolicy size="300 MB"/>
+
+            </Policies>
+
+            <DefaultRolloverStrategy>
+
+                <Delete
+                        basePath="${FILE_DIR}"
+                        maxDepth="1">
+
+                    <IfFileName glob="${FILE_NAME}.*"/>
+
+                    <IfLastModified age="15d"/>
+
+                </Delete>
+
+            </DefaultRolloverStrategy>
+
+        </RollingRandomAccessFile>
+
+
+        <!-- ==================== CONSOLE APPENDER ==================== -->
+
+        <Console
+                name="console"
+                target="SYSTEM_ERR">
+
+            <ThresholdFilter level="ERROR"/>
+
+            <PatternLayout>
+                <Pattern>${CONSOLE_PATTERN}</Pattern>
+            </PatternLayout>
+
+        </Console>
+
+    </Appenders>
+
+
+    <!-- ==================== LOGGER ==================== -->
+
+    <Loggers>
+
+        <AsyncRoot
+                level="INFO"
+                includeLocation="true">
+
+            <AppenderRef ref="logfile"/>
+
+            <AppenderRef ref="console"/>
+
+        </AsyncRoot>
+
+    </Loggers>
+
+</Configuration>

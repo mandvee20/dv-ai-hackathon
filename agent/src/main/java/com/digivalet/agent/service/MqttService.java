@@ -17,120 +17,103 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Service
 @Slf4j
-public class MqttService {
+public class MqttService
+{
 
-    private MqttClient mqttClient;
+   private MqttClient mqttClient;
 
-    private final MqttConfig mqttConfig;
+   private final MqttConfig mqttConfig;
 
-    public MqttService(SimulatorConfigLoader configLoader) {
-        this.mqttConfig = configLoader.getConfig().getMqtt();
-    }
+   public MqttService(SimulatorConfigLoader configLoader)
+   {
+      this.mqttConfig = configLoader.getConfig().getMqtt();
+   }
 
-    @PostConstruct
-    public void connect() {
+   @PostConstruct
+   public void connect()
+   {
 
-        try {
+      try
+      {
 
-            String brokerUrl =
-                    "tcp://" +
-                    mqttConfig.getBrokerHost() +
-                    ":" +
-                    mqttConfig.getBrokerPort();
+         String brokerUrl =
+                  "tcp://" + mqttConfig.getBrokerHost() + ":" + mqttConfig.getBrokerPort();
 
-            mqttClient = new MqttClient(
-                    brokerUrl,
-                    mqttConfig.getClientId()
-            );
+         mqttClient = new MqttClient(brokerUrl, mqttConfig.getClientId());
 
-            MqttConnectOptions options =
-                    new MqttConnectOptions();
+         MqttConnectOptions options = new MqttConnectOptions();
 
-            options.setAutomaticReconnect(true);
-            options.setCleanSession(true);
-            options.setConnectionTimeout(10);
-            options.setKeepAliveInterval(60);
+         options.setAutomaticReconnect(true);
+         options.setCleanSession(true);
+         options.setConnectionTimeout(10);
+         options.setKeepAliveInterval(60);
 
-            mqttClient.connect(options);
+         mqttClient.connect(options);
 
-            log.info(
-                    "Connected to MQTT broker: " + brokerUrl
-            );
+         log.info("Connected to MQTT broker: " + brokerUrl);
 
-            subscribe();
+         subscribe();
 
-        } catch (MqttException e) {
+      }
+      catch (MqttException e)
+      {
 
-           log.error(
-                    "Failed to connect to MQTT broker"
-            );
+         log.error("Failed to connect to MQTT broker");
 
-            e.printStackTrace();
-        }
-    }
+         e.printStackTrace();
+      }
+   }
 
-    private void subscribe() throws MqttException {
+   private void subscribe() throws MqttException
+   {
 
-        mqttClient.subscribe(
-                mqttConfig.getResponseTopic(),
-                this::handleMessage
-        );
+      mqttClient.subscribe(mqttConfig.getResponseTopic(), this::handleMessage);
 
-        log.info(
-                "Subscribed to: " +
-                mqttConfig.getResponseTopic()
-        );
-    }
+      log.info("Subscribed to: " + mqttConfig.getResponseTopic());
+   }
 
-    private void handleMessage(
-            String topic,
-            MqttMessage message) {
+   private void handleMessage(String topic, MqttMessage message)
+   {
 
-        String payload =
-                new String(message.getPayload());
+      String payload = new String(message.getPayload());
 
-        log.info(
-                "MQTT Message received"
-        );
+      log.info("MQTT Message received");
 
-        log.info(
-                "Topic : " + topic
-        );
+      log.info("Topic : " + topic);
 
-        log.info(
-                "Payload : " + payload
-        );
-    }
-    
-    public void publish(String topic, String payload) {
+      log.info("Payload : " + payload);
+   }
 
-       try {
+   public void publish(String topic, String payload)
+   {
 
-           if (!mqttClient.isConnected()) {
-              log.info("MQTT client is not connected");
-               return;
-           }
+      try
+      {
 
-           MqttMessage message = new MqttMessage(
-                   payload.getBytes()
-           );
+         if (!mqttClient.isConnected())
+         {
+            log.info("MQTT client is not connected");
+            return;
+         }
 
-           message.setQos(1);
-           message.setRetained(false);
+         MqttMessage message = new MqttMessage(payload.getBytes());
 
-           mqttClient.publish(topic, message);
+         message.setQos(1);
+         message.setRetained(false);
 
-           log.info("MQTT message published successfully");
-           log.info("Topic   : " + topic);
-           log.info("Payload : " + payload);
+         mqttClient.publish(topic, message);
 
-       } catch (MqttException e) {
+         log.info("MQTT message published successfully");
+         log.info("Topic   : " + topic);
+         log.info("Payload : " + payload);
 
-           log.error(
-                   "Failed to publish MQTT message: " + e.getMessage()
-           );
+      }
+      catch (MqttException e)
+      {
 
-           e.printStackTrace();
-       }
+         log.error("Failed to publish MQTT message: " + e.getMessage());
+
+         e.printStackTrace();
+      }
    }
 }

@@ -6,7 +6,6 @@
     "commandTopic": "room/simulator/command",
     "responseTopic": "room/simulator/response"
   },
-
   "rooms": [
     {
       "roomId": "101",
@@ -35,6 +34,33 @@
         },
         {
           "deviceId": "3",
+          "deviceType": "LIGHT",
+          "operations": {
+            "ON": {
+              "result": "SUCCESS"
+            }
+          }
+        },
+        {
+          "deviceId": "4",
+          "deviceType": "LIGHT",
+          "operations": {
+            "ON": {
+              "result": "SUCCESS"
+            }
+          }
+        },
+        {
+          "deviceId": "5",
+          "deviceType": "CURTAIN",
+          "operations": {
+            "OPEN": {
+              "result": "SUCCESS"
+            }
+          }
+        },
+        {
+          "deviceId": "6",
           "deviceType": "CURTAIN",
           "operations": {
             "OPEN": {
@@ -44,7 +70,6 @@
         }
       ]
     },
-
     {
       "roomId": "320",
       "dvc": {
@@ -78,6 +103,30 @@
         },
         {
           "deviceId": "3",
+          "deviceType": "LIGHT",
+          "operations": {
+            "ON": {
+              "result": "FAILURE",
+              "exception": "NoRouteToHostException",
+              "message": "No Route To Host",
+              "description": "IP is not reachable."
+            }
+          }
+        },
+        {
+          "deviceId": "4",
+          "deviceType": "CURTAIN",
+          "operations": {
+            "OPEN": {
+              "result": "FAILURE",
+              "exception": "SocketException",
+              "message": "Network is unreachable",
+              "description": "Network is not reachable. Check network connection."
+            }
+          }
+        },
+        {
+          "deviceId": "5",
           "deviceType": "CURTAIN",
           "operations": {
             "OPEN": {
@@ -90,7 +139,6 @@
         }
       ]
     },
-
     {
       "roomId": "420",
       "dvc": {
@@ -108,6 +156,54 @@
           "deviceType": "TV",
           "operations": {
             "ON": {
+              "result": "FAILURE",
+              "exception": "SocketTimeoutException",
+              "message": "Connect timed out",
+              "description": "IP is reachable but connection timed out."
+            }
+          }
+        },
+        {
+          "deviceId": "2",
+          "deviceType": "LIGHT",
+          "operations": {
+            "ON": {
+              "result": "FAILURE",
+              "exception": "SocketTimeoutException",
+              "message": "Connect timed out",
+              "description": "IP is reachable but connection timed out."
+            }
+          }
+        },
+        {
+          "deviceId": "3",
+          "deviceType": "LIGHT",
+          "operations": {
+            "ON": {
+              "result": "FAILURE",
+              "exception": "SocketTimeoutException",
+              "message": "Connect timed out",
+              "description": "IP is reachable but connection timed out."
+            }
+          }
+        },
+        {
+          "deviceId": "4",
+          "deviceType": "CURTAIN",
+          "operations": {
+            "OPEN": {
+              "result": "FAILURE",
+              "exception": "SocketTimeoutException",
+              "message": "Connect timed out",
+              "description": "IP is reachable but connection timed out."
+            }
+          }
+        },
+        {
+          "deviceId": "5",
+          "deviceType": "CURTAIN",
+          "operations": {
+            "OPEN": {
               "result": "FAILURE",
               "exception": "SocketTimeoutException",
               "message": "Connect timed out",

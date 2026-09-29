@@ -1,4 +1,4 @@
-package com.precheckin.simulator.scheduler;
+package com.digivalet.agent.scheduler;
 
 import com.digivalet.agent.dto.FiasRequest;
 import org.slf4j.Logger;

@@ -16,6 +16,13 @@ public class MovieService
 {
    private final AtomicInteger requestCounter = new AtomicInteger();
 
+   private final FailureEventPublisher failureEventPublisher;
+
+   public MovieService(FailureEventPublisher failureEventPublisher)
+   {
+      this.failureEventPublisher = failureEventPublisher;
+   }
+
    public MovieResponse generateMovieUrl(MovieRequest request)
    {
       int count = requestCounter.incrementAndGet();
@@ -23,11 +30,14 @@ public class MovieService
       log.info("Processing movie request requestId={} roomId={} movieId={} count={}",
                request.getRequestId(), request.getRoomId(), request.getMovieId(), count);
 
-      // Alternate response: URL on odd requests, no URL on even requests.
       if (count % 2 == 0)
       {
-         log.warn("Movie URL not available requestId={} roomId={} movieId={}",
-                  request.getRequestId(), request.getRoomId(), request.getMovieId());
+         String error = "Movie URL not available";
+
+         log.error("Movie URL generation failed requestId={} roomId={} movieId={} error={}",
+                  request.getRequestId(), request.getRoomId(), request.getMovieId(), error);
+
+         failureEventPublisher.publish(request, error);
 
          return new MovieResponse(request.getRequestId(), request.getRoomId(), null);
       }
@@ -35,8 +45,8 @@ public class MovieService
       String movieUrl =
                "http://movie-server/movies/" + request.getMovieId() + "-" + UUID.randomUUID() + ".mp4";
 
-      log.info("Movie URL generated requestId={} roomId={} movieId={} url={}",
-               request.getRequestId(), request.getRoomId(), request.getMovieId(), movieUrl);
+      log.info("Movie URL generated requestId={} roomId={} movieId={}", request.getRequestId(),
+               request.getRoomId(), request.getMovieId());
 
       return new MovieResponse(request.getRequestId(), request.getRoomId(), movieUrl);
    }

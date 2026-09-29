@@ -1,0 +1,17 @@
+server:
+  port: 8085
+
+core:
+  tcp:
+    port: 9000
+
+movie-service:
+  url: http://localhost:8081
+
+mqtt:
+  broker: tcp://localhost:1883
+  client-id: core-simulator
+  rms-command-topic: room/simulator/command
+
+tv-app:
+  url: http://localhost:8082

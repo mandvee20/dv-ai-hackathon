@@ -9,7 +9,14 @@ movie-service:
   url: http://localhost:8081
 
 log-analysis-service:
-  url: http://localhost:8084
+  url: http://localhost:9079
 
 tv-app:
   url: http://localhost:8082
+
+logging:
+  file:
+    name: logs/core-simulator.log
+
+  pattern:
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} : %msg%n"

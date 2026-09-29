@@ -10,5 +10,9 @@ public enum IntentType
 
    CURTAIN_OPEN,
 
-   CURTAIN_CLOSE
+   CURTAIN_CLOSE,
+
+   TV_ON,
+
+   TV_OFF
 }

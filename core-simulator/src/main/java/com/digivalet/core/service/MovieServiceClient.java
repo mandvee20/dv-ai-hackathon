@@ -14,7 +14,7 @@ public class MovieServiceClient
 
    public MovieServiceClient(RestClient.Builder builder)
    {
-      this.restClient = builder.baseUrl("http://localhost:8084").build();
+      this.restClient = builder.baseUrl("http://localhost:9090").build();
    }
 
    public String generateMovieUrl(IntentRequest request)

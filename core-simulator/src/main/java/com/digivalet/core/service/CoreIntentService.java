@@ -2,6 +2,7 @@ package com.digivalet.core.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.digivalet.core.model.IntentRequest;
@@ -18,6 +19,9 @@ public class CoreIntentService
 
    private final FailureEventPublisher failureEventPublisher;
 
+   @Autowired
+   private TvAppClient tvAppClient;
+
    public CoreIntentService(MovieServiceClient movieServiceClient, RmsDeviceClient rmsDeviceClient,
             FailureEventPublisher failureEventPublisher)
    {
@@ -33,6 +37,8 @@ public class CoreIntentService
          switch (request.getIntent())
          {
             case PLAY_MOVIE -> processMovie(request);
+
+            case TV_ON, TV_OFF -> processTvOperation(request);
 
             case LIGHT_ON, LIGHT_OFF, CURTAIN_OPEN, CURTAIN_CLOSE -> processRmsOperation(request);
 
@@ -59,9 +65,35 @@ public class CoreIntentService
       log.info("Movie URL received requestId={} roomId={}", request.getRequestId(),
                request.getRoomId());
 
-      // In the next step this will call TV App.
-      log.info("Sending movie play command to TV App requestId={} roomId={} url={}",
-               request.getRequestId(), request.getRoomId(), movieUrl);
+      if (movieUrl == null || movieUrl.isBlank())
+      {
+         throw new IllegalStateException("Movie URL was not generated");
+      }
+
+      log.info("Sending movie play command to TV App requestId={} roomId={}",
+               request.getRequestId(), request.getRoomId());
+
+      tvAppClient.playMovie(request, movieUrl);
+
+      log.info("Movie play command completed requestId={} roomId={}", request.getRequestId(),
+               request.getRoomId());
+   }
+
+   private void processTvOperation(IntentRequest request)
+   {
+      log.info(
+               "Sending TV command requestId={} roomId={} intent={}",
+               request.getRequestId(),
+               request.getRoomId(),
+               request.getIntent());
+
+      tvAppClient.execute(request);
+
+      log.info(
+               "TV command completed requestId={} roomId={} intent={}",
+               request.getRequestId(),
+               request.getRoomId(),
+               request.getIntent());
    }
 
    private void processRmsOperation(IntentRequest request)

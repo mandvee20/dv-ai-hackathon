@@ -1,23 +1,18 @@
 package com.digivalet.core.service;
 
-import com.digivalet.core.model.IntentRequest;
-import com.digivalet.core.model.MovieRequest;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClient;
+
+import com.digivalet.core.model.IntentRequest;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
 public class TvAppClient
 {
-   private final RestClient restClient;
-
-   public TvAppClient(@Value("${tv-app.url:http://localhost:8082}") String tvAppUrl)
-   {
-      this.restClient = RestClient.builder().baseUrl(tvAppUrl).build();
-   }
+   private final AtomicInteger requestCounter = new AtomicInteger();
 
    public void playMovie(IntentRequest request, String movieUrl)
    {
@@ -25,33 +20,44 @@ public class TvAppClient
 
       String movieName = String.valueOf(request.getParameters().get("movieName"));
 
-      MovieRequest movieRequest =
-               new MovieRequest(request.getRequestId(), request.getRoomId(), movieId, movieName);
+      int count = requestCounter.incrementAndGet();
 
-      log.info("Sending movie command to TV App. requestId={}, roomId={}, movieId={}",
-               request.getRequestId(), request.getRoomId(), movieId);
+      log.info("Sending movie command to TV App. requestId={}, roomId={}, movieId={}, movieName={}, count={}",
+               request.getRequestId(), request.getRoomId(), movieId, movieName, count);
 
-      try
+      // Alternate between successful and failed TV playback.
+      if (count % 2 == 0)
       {
-         restClient.post().uri("/tv/play").contentType(MediaType.APPLICATION_JSON)
-                  .body(new TvMovieCommand(movieRequest.getRequestId(), movieRequest.getRoomId(),
-                           movieRequest.getMovieId(), movieRequest.getMovieName(), movieUrl))
-                  .retrieve().toBodilessEntity();
+         String error = "TV is not playing the movie";
 
-         log.info("Movie command successfully sent to TV App. requestId={}, roomId={}",
-                  request.getRequestId(), request.getRoomId());
-      }
-      catch (Exception e)
-      {
-         log.error("Failed to send movie command to TV App. requestId={}, roomId={}",
-                  request.getRequestId(), request.getRoomId(), e);
+         log.error("TV App failed to play movie. requestId={}, roomId={}, movieId={}, error={}",
+                  request.getRequestId(), request.getRoomId(), movieId, error);
 
-         throw new RuntimeException("Failed to send movie command to TV App", e);
+         throw new RuntimeException(error);
       }
+
+      log.info("TV App started playing movie. requestId={}, roomId={}, movieId={}, movieUrl={}",
+               request.getRequestId(), request.getRoomId(), movieId, movieUrl);
    }
 
-   private record TvMovieCommand(String requestId, String roomId, String movieId, String movieName,
-                                 String movieUrl)
+   public void execute(IntentRequest request)
    {
+      String deviceId = String.valueOf(request.getParameters().get("deviceId"));
+
+      String command = request.getIntent().name();
+
+      log.info("Processing TV command requestId={} roomId={} deviceId={} command={}",
+               request.getRequestId(), request.getRoomId(), deviceId, command);
+
+      switch (command)
+      {
+         case "TV_ON" -> log.info("TV turned ON requestId={} roomId={} deviceId={}",
+                  request.getRequestId(), request.getRoomId(), deviceId);
+
+         case "TV_OFF" -> log.info("TV turned OFF requestId={} roomId={} deviceId={}",
+                  request.getRequestId(), request.getRoomId(), deviceId);
+
+         default -> throw new IllegalArgumentException("Unsupported TV command: " + command);
+      }
    }
 }

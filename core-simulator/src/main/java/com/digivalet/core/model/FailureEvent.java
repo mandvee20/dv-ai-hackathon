@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,5 +21,7 @@ public class FailureEvent
    private String timestamp;
 
    private String error;
+
+   private List<String> logs;
 
 }

@@ -2,6 +2,7 @@ package com.digivalet.core.service;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.stereotype.Component;
 
@@ -15,30 +16,36 @@ public class RmsDeviceClient
 {
    private final Map<String, String> deviceState = new ConcurrentHashMap<>();
 
+   private final AtomicInteger requestCounter = new AtomicInteger();
+
    public void execute(IntentRequest request)
    {
-      String deviceId = String.valueOf(
-               request.getParameters().get("deviceId"));
+      String deviceId = String.valueOf(request.getParameters().get("deviceId"));
 
       String command = request.getIntent().name();
 
-      log.info(
-               "Processing RMS command requestId={} roomId={} deviceId={} command={}",
-               request.getRequestId(),
-               request.getRoomId(),
-               deviceId,
-               command);
+      int count = requestCounter.incrementAndGet();
+
+      log.info("Processing RMS command requestId={} roomId={} deviceId={} command={} count={}",
+               request.getRequestId(), request.getRoomId(), deviceId, command, count);
+
+      // Simulate RMS disconnection on every second request.
+      if (count % 2 == 0)
+      {
+         String error = "RMS device is disconnected";
+
+         log.error("RMS command failed requestId={} roomId={} deviceId={} command={} error={}",
+                  request.getRequestId(), request.getRoomId(), deviceId, command, error);
+
+         throw new IllegalStateException(error);
+      }
 
       String newState = getState(command);
 
       deviceState.put(deviceId, newState);
 
-      log.info(
-               "RMS device state updated requestId={} roomId={} deviceId={} state={}",
-               request.getRequestId(),
-               request.getRoomId(),
-               deviceId,
-               newState);
+      log.info("RMS device state updated requestId={} roomId={} deviceId={} state={}",
+               request.getRequestId(), request.getRoomId(), deviceId, newState);
    }
 
    private String getState(String command)
@@ -50,8 +57,7 @@ public class RmsDeviceClient
          case "CURTAIN_OPEN" -> "OPEN";
          case "CURTAIN_CLOSE" -> "CLOSED";
 
-         default -> throw new IllegalArgumentException(
-                  "Unsupported RMS command: " + command);
+         default -> throw new IllegalArgumentException("Unsupported RMS command: " + command);
       };
    }
 

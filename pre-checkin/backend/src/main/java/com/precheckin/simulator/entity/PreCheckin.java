@@ -51,4 +51,6 @@ public class PreCheckin
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+
+    private String roomNumber;
 }

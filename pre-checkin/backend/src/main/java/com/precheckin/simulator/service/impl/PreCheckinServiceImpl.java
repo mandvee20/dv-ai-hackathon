@@ -14,11 +14,14 @@ import java.time.LocalDateTime;
 public class PreCheckinServiceImpl implements PreCheckinService
 {
     private final PreCheckinRepository preCheckinRepository;
+    private final PreCheckinApiClient preCheckinApiClient;
 
     public PreCheckinServiceImpl(
-            PreCheckinRepository preCheckinRepository)
+             PreCheckinRepository preCheckinRepository,
+             PreCheckinApiClient preCheckinApiClient)
     {
         this.preCheckinRepository = preCheckinRepository;
+        this.preCheckinApiClient = preCheckinApiClient;
     }
 
     @Override
@@ -62,8 +65,56 @@ public class PreCheckinServiceImpl implements PreCheckinService
 
             PreCheckin savedPreCheckin = preCheckinRepository.save(preCheckin);
 
-            log.info("Pre-check-in data saved successfully. Registration ID: {}, Reservation: {}",
-                     savedPreCheckin.getId(), savedPreCheckin.getReservationNumber());
+            log.info(
+                     "Pre-check-in data saved successfully. Registration ID: {}, Reservation: {}",
+                     savedPreCheckin.getId(),
+                     savedPreCheckin.getReservationNumber());
+
+            PreCheckinApiRequest apiRequest =
+                     new PreCheckinApiRequest();
+
+            apiRequest.setReservationNumber(
+                     savedPreCheckin.getReservationNumber());
+
+            apiRequest.setFirstName(
+                     savedPreCheckin.getFirstName());
+
+            apiRequest.setLastName(
+                     savedPreCheckin.getLastName());
+
+            apiRequest.setEmail(
+                     savedPreCheckin.getEmail());
+
+            apiRequest.setMobileNumber(
+                     savedPreCheckin.getMobileNumber());
+
+            apiRequest.setArrivalDate(
+                     savedPreCheckin.getArrivalDate());
+
+            apiRequest.setDepartureDate(
+                     savedPreCheckin.getDepartureDate());
+
+            apiRequest.setEstimatedArrivalTime(
+                     savedPreCheckin.getEstimatedArrivalTime());
+
+            apiRequest.setNationality(
+                     savedPreCheckin.getNationality());
+
+            apiRequest.setIdType(
+                     savedPreCheckin.getIdType());
+
+            apiRequest.setIdNumber(
+                     savedPreCheckin.getIdNumber());
+
+            apiRequest.setRoomNumber(
+                     savedPreCheckin.getRoomNumber());
+
+            log.info(
+                     "Sending pre-check-in data to external service. Reservation: {}, Room: {}",
+                     savedPreCheckin.getReservationNumber(),
+                     savedPreCheckin.getRoomNumber());
+
+            preCheckinApiClient.sendPreCheckin(apiRequest);
 
             return savedPreCheckin;
         }

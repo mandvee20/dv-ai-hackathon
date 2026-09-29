@@ -37,5 +37,7 @@ public class PreCheckinRequest
 
     private String idNumber;
 
+    private String roomNumber;
+
     // getters and setters
 }

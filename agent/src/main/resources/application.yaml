@@ -5,10 +5,10 @@ spring:
 server:
   port: 8083
 
-logging:
-   config: classpath:log4j2.xml
-   file:
-     name: /var/log/service/agent.log
+#logging:
+#   config: classpath:log4j2.xml
+#   file:
+#     name: /var/log/service/agent.log
 #
 #  level:
 #    root: DEBUG

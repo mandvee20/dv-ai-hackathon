@@ -28,10 +28,10 @@ public class PreCheckInController
    public ResponseEntity<Void> receivePreCheckIn(@Valid @RequestBody PreCheckInRequest request)
    {
 
-      log.info("Pre-check-in event received | reservationNumber={} | firstName={} | lastName={} | arrivalDate={} | departureDate={}",
-               request.getReservationNumber(), request.getFirstName(), request.getLastName(),
-               request.getArrivalDate(), request.getDepartureDate());
+      log.info("Pre-check-in event received | reservationNumber={}, {}",
+               request.getReservationNumber(), request);
       preCheckInService.processPreCheckIn(request);
+      
 
       return ResponseEntity.accepted().build();
    }

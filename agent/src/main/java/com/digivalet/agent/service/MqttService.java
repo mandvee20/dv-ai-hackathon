@@ -8,12 +8,15 @@ import org.springframework.stereotype.Service;
 import com.digivalet.agent.config.MqttConfig;
 import com.digivalet.agent.config.SimulatorConfigLoader;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Mandvee Vatsa
  * @date Sep 29, 2026
  */
 @Service
+@Slf4j
 public class MqttService {
 
     private MqttClient mqttClient;
@@ -50,7 +53,7 @@ public class MqttService {
 
             mqttClient.connect(options);
 
-            System.out.println(
+            log.info(
                     "Connected to MQTT broker: " + brokerUrl
             );
 
@@ -58,7 +61,7 @@ public class MqttService {
 
         } catch (MqttException e) {
 
-            System.err.println(
+           log.error(
                     "Failed to connect to MQTT broker"
             );
 
@@ -69,13 +72,13 @@ public class MqttService {
     private void subscribe() throws MqttException {
 
         mqttClient.subscribe(
-                mqttConfig.getCommandTopic(),
+                mqttConfig.getResponseTopic(),
                 this::handleMessage
         );
 
-        System.out.println(
+        log.info(
                 "Subscribed to: " +
-                mqttConfig.getCommandTopic()
+                mqttConfig.getResponseTopic()
         );
     }
 
@@ -86,16 +89,48 @@ public class MqttService {
         String payload =
                 new String(message.getPayload());
 
-        System.out.println(
+        log.info(
                 "MQTT Message received"
         );
 
-        System.out.println(
+        log.info(
                 "Topic : " + topic
         );
 
-        System.out.println(
+        log.info(
                 "Payload : " + payload
         );
     }
+    
+    public void publish(String topic, String payload) {
+
+       try {
+
+           if (!mqttClient.isConnected()) {
+              log.info("MQTT client is not connected");
+               return;
+           }
+
+           MqttMessage message = new MqttMessage(
+                   payload.getBytes()
+           );
+
+           message.setQos(1);
+           message.setRetained(false);
+
+           mqttClient.publish(topic, message);
+
+           log.info("MQTT message published successfully");
+           log.info("Topic   : " + topic);
+           log.info("Payload : " + payload);
+
+       } catch (MqttException e) {
+
+           log.error(
+                   "Failed to publish MQTT message: " + e.getMessage()
+           );
+
+           e.printStackTrace();
+       }
+   }
 }

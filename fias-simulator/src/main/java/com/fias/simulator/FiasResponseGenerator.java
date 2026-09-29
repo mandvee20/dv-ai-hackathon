@@ -19,9 +19,9 @@ public class FiasResponseGenerator
 
       for (int i = 0; i < roomCount; i++)
       {
-         String roomNumber = String.valueOf(100 + random.nextInt(900));
+         String roomNumber = "101";
 
-         int roomStatus = 1 + random.nextInt(6);
+         int roomStatus = 3;
 
          String event = "RE|RN" + roomNumber + "|RS" + roomStatus + "|";
 

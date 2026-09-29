@@ -25,19 +25,14 @@ public class PreCheckInController
    private final PreCheckInService preCheckInService;
 
    @PostMapping
-   public ResponseEntity<Void> receivePreCheckIn(
-           @Valid @RequestBody PreCheckInRequest request) {
+   public ResponseEntity<Void> receivePreCheckIn(@Valid @RequestBody PreCheckInRequest request)
+   {
 
-      log.info(
-               "Pre-check-in event received | reservationNumber={} | firstName={} | lastName={} | arrivalDate={} | departureDate={}",
-               request.getReservationNumber(),
-               request.getFirstName(),
-               request.getLastName(),
-               request.getArrivalDate(),
-               request.getDepartureDate()
-       );
-       preCheckInService.processPreCheckIn(request);
+      log.info("Pre-check-in event received | reservationNumber={} | firstName={} | lastName={} | arrivalDate={} | departureDate={}",
+               request.getReservationNumber(), request.getFirstName(), request.getLastName(),
+               request.getArrivalDate(), request.getDepartureDate());
+      preCheckInService.processPreCheckIn(request);
 
-       return ResponseEntity.accepted().build();
+      return ResponseEntity.accepted().build();
    }
 }

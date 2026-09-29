@@ -1,0 +1,18 @@
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+
+  room-simulator:
+    build: .
+    depends_on:
+      - mosquitto
+    ports:
+      - "8080:8080"
+    environment:
+      # Overrides the brokerHost in simulator-config.json so the container talks to the local broker
+      SIMULATOR_MQTT_BROKER_HOST: mosquitto
+      SIMULATOR_MQTT_BROKER_PORT: "1883"

@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: room-simulator
+
+server:
+  port: ${SERVER_PORT:1212}
+
+simulator:
+  # classpath:simulator-config.json, or file:/path/simulator-config.json to edit and hot-reload
+  config-file: ${SIMULATOR_CONFIG_FILE:classpath:simulator-config.json}
+  # Optional: point at another broker without touching the JSON (blank = use the JSON values)
+  mqtt:
+    enabled: ${SIMULATOR_MQTT_ENABLED:}
+    broker-host: ${SIMULATOR_MQTT_BROKER_HOST:}
+    broker-port: ${SIMULATOR_MQTT_BROKER_PORT:}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+logging:
+  level:
+    root: INFO
+    com.example.roomsimulator: DEBUG

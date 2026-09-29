@@ -1,63 +1,47 @@
 package com.digivalet.core.service;
 
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.paho.client.mqttv3.MqttClient;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
 
 import com.digivalet.core.model.FailureEvent;
 import com.digivalet.core.model.IntentRequest;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 @Slf4j
 public class FailureEventPublisher
 {
-   private static final String TOPIC = "intent/failure";
+   private final RestClient restClient;
 
-   private final MqttClient mqttClient;
-
-   private final ObjectMapper objectMapper;
-
-   public FailureEventPublisher(MqttClient mqttClient, ObjectMapper objectMapper)
+   public FailureEventPublisher(
+            @Value("${log-analysis-service.url:http://localhost:8084}") String serviceUrl)
    {
-      this.mqttClient = mqttClient;
-      this.objectMapper = objectMapper;
+      this.restClient = RestClient.builder().baseUrl(serviceUrl).build();
    }
 
    public void publish(IntentRequest request, String error)
    {
       try
       {
-         FailureEvent event = new FailureEvent(
-                  request.getRequestId(),
-                  request.getRoomId(),
-                  request.getIntent().name(),
-                  Instant.now().toString(),
-                  error);
+         FailureEvent event = new FailureEvent(request.getRequestId(), request.getRoomId(),
+                  request.getIntent().name(), Instant.now().toString(), error);
 
-         String payload = objectMapper.writeValueAsString(event);
+         restClient.post().uri("/analysis/failure").contentType(MediaType.APPLICATION_JSON)
+                  .body(event).retrieve().toBodilessEntity();
 
-         MqttMessage message = new MqttMessage(
-                  payload.getBytes(StandardCharsets.UTF_8));
-
-         message.setQos(1);
-
-         mqttClient.publish(TOPIC, message);
-
-         log.info(
-                  "Failure event published requestId={} roomId={} intent={}",
-                  request.getRequestId(),
-                  request.getRoomId(),
-                  request.getIntent());
+         log.info("Failure event sent to Log Analysis Service requestId={} roomId={} intent={}",
+                  request.getRequestId(), request.getRoomId(), request.getIntent());
       }
       catch (Exception e)
       {
-         throw new IllegalStateException(
-                  "Unable to publish failure event", e);
+         log.error("Failed to send failure event requestId={} roomId={} intent={}",
+                  request.getRequestId(), request.getRoomId(), request.getIntent(), e);
+
+         throw new IllegalStateException("Unable to send failure event to Log Analysis Service", e);
       }
    }
 }

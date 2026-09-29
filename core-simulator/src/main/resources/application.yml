@@ -8,10 +8,8 @@ core:
 movie-service:
   url: http://localhost:8081
 
-mqtt:
-  broker: tcp://localhost:1883
-  client-id: core-simulator
-  rms-command-topic: room/simulator/command
+log-analysis-service:
+  url: http://localhost:8084
 
 tv-app:
   url: http://localhost:8082

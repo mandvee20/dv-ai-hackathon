@@ -11,11 +11,11 @@ public class PreCheckinApiClient
 
    public PreCheckinApiClient(RestClient.Builder restClientBuilder)
    {
-      this.restClient = restClientBuilder.baseUrl("http://localhost:8082").build();
+      this.restClient = restClientBuilder.baseUrl("http://localhost:8083").build();
    }
 
    public void sendPreCheckin(PreCheckinApiRequest request)
    {
-      restClient.post().uri("/api/precheckin").body(request).retrieve().toBodilessEntity();
+      restClient.post().uri("/api/v1/pre-checkin").body(request).retrieve().toBodilessEntity();
    }
 }

@@ -1,19 +1,19 @@
 package com.digivalet.agent.scheduler;
-import com.digivalet.agent.config.DeviceConfig;
-import com.digivalet.agent.config.RoomConfig;
-import com.digivalet.agent.config.SimulatorConfig;
-import com.digivalet.agent.config.SimulatorConfigLoader;
+
+import com.digivalet.agent.config.*;
+import com.digivalet.agent.dto.FailureMqttEvent;
 import com.digivalet.agent.dto.RoomSimulatorCommand;
 import com.digivalet.agent.service.MqttService;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import tools.jackson.databind.ObjectMapper;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.time.Instant;
+import java.util.*;
 
 @Component
 public class FiasRoomStatusScheduler
@@ -28,9 +28,11 @@ public class FiasRoomStatusScheduler
 
    private final Random random = new Random();
 
-   public FiasRoomStatusScheduler(
-            FiasTcpClient fiasTcpClient,
-            SimulatorConfigLoader simulatorConfigLoader , MqttService mqttService)
+   @Autowired
+   private ObjectMapper objectMapper;
+
+   public FiasRoomStatusScheduler(FiasTcpClient fiasTcpClient,
+            SimulatorConfigLoader simulatorConfigLoader, MqttService mqttService)
    {
       this.fiasTcpClient = fiasTcpClient;
       this.simulatorConfigLoader = simulatorConfigLoader;
@@ -112,13 +114,11 @@ public class FiasRoomStatusScheduler
          return;
       }
 
-      // Send TV command
+      // Check TV
       devices.stream().filter(device -> "TV".equalsIgnoreCase(device.getDeviceType())).findFirst()
-               .ifPresent(device -> {
-                  sendDeviceCommand(roomNumber, device, "ON");
-               });
+               .ifPresent(device -> processConfiguredOperation(roomNumber, device, "ON"));
 
-      // Find all configured lights
+      // Check all configured lights
       List<DeviceConfig> lights =
                devices.stream().filter(device -> "LIGHT".equalsIgnoreCase(device.getDeviceType()))
                         .toList();
@@ -133,24 +133,73 @@ public class FiasRoomStatusScheduler
       // Pick a random light
       DeviceConfig randomLight = lights.get(random.nextInt(lights.size()));
 
-      sendDeviceCommand(roomNumber, randomLight, "ON");
+      processConfiguredOperation(roomNumber, randomLight, "ON");
    }
 
-   private void sendDeviceCommand(String roomNumber, DeviceConfig device, String operation)
+   private void processConfiguredOperation(String roomNumber, DeviceConfig device, String operation)
    {
-      RoomSimulatorCommand command = new RoomSimulatorCommand();
+      if (device.getOperations() == null || !device.getOperations().containsKey(operation))
+      {
+         log.warn("No operation configuration found. Room: {}, Device: {}, Operation: {}",
+                  roomNumber, device.getDeviceId(), operation);
 
-      command.setCommand("EXECUTE");
-      command.setRoomId(roomNumber);
-      command.setDeviceId(device.getDeviceId());
-      command.setDeviceType(device.getDeviceType());
-      command.setOperation(operation);
-      command.setRequestId("REQ-" + System.currentTimeMillis());
+         return;
+      }
 
-      log.info("Sending device command. Room: {}, Device: {}, Type: {}, Operation: {}", roomNumber,
-               device.getDeviceId(), device.getDeviceType(), operation);
+      OperationConfig operationConfig = device.getOperations().get(operation);
 
-      mqttService.publish("room/simulator/command", command.toString());
+      if (!"FAILURE".equalsIgnoreCase(operationConfig.getResult()))
+      {
+         log.info("Device soft-check successful. Room: {}, Device: {}, Type: {}, Operation: {}",
+                  roomNumber, device.getDeviceId(), device.getDeviceType(), operation);
+
+         return;
+      }
+
+      log.error(
+               "Device soft-check failed. Room: {}, Device: {}, Type: {}, Operation: {}, Exception: {}, Message: {}",
+               roomNumber, device.getDeviceId(), device.getDeviceType(), operation,
+               operationConfig.getException(), operationConfig.getMessage());
+
+      publishFailureEvent(roomNumber, device, operation, operationConfig);
+   }
+
+   private void publishFailureEvent(String roomNumber, DeviceConfig device, String operation,
+            OperationConfig operationConfig)
+   {
+      Map<String, String> details = new HashMap<>();
+
+      details.put("action", operation);
+      details.put("exception", operationConfig.getException());
+      details.put("message", operationConfig.getMessage());
+      details.put("description", operationConfig.getDescription());
+
+      FailureMqttEvent event = new FailureMqttEvent();
+
+      event.setSource("validation_service");
+      event.setType("auth.fail");
+      event.setRoomNumber(roomNumber);
+      event.setTs(Instant.now().toString());
+      event.setIntentId("REQ-" + System.currentTimeMillis());
+      event.setIntent("validation");
+      event.setErrorCode(operationConfig.getException());
+      event.setDeviceId(device.getDeviceId());
+      event.setDetails(details);
+
+      try
+      {
+         String payload = objectMapper.writeValueAsString(event);
+
+         mqttService.publish("room/simulator/response", payload);
+
+         log.info("Published device failure event to MQTT. Room: {}, Device: {}, Operation: {}",
+                  roomNumber, device.getDeviceId(), operation);
+      }
+      catch (Exception e)
+      {
+         log.error("Failed to publish device failure event to MQTT. Room: {}, Device: {}",
+                  roomNumber, device.getDeviceId(), e);
+      }
    }
 
 }

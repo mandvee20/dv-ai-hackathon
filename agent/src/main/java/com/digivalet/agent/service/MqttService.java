@@ -1,5 +1,7 @@
 package com.digivalet.agent.service;
 
+import com.digivalet.agent.dto.FailureMqttEvent;
+import com.digivalet.agent.model.FailureEvent;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -9,9 +11,12 @@ import org.springframework.stereotype.Service;
 import com.digivalet.agent.config.MqttConfig;
 import com.digivalet.agent.config.SimulatorConfigLoader;
 import jakarta.annotation.PostConstruct;
-import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
+import tools.jackson.databind.ObjectMapper;
 
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -26,6 +31,12 @@ public class MqttService
    private MqttClient mqttClient;
    @Autowired
    public SimulatorConfigLoader simulatorConfigLoader;
+
+   @Autowired
+   private ObjectMapper objectMapper;
+
+   @Autowired
+   private MqttConfig mqttConfig;
 
    @PostConstruct
    public void connect()
@@ -112,6 +123,29 @@ public class MqttService
          log.error("Failed to publish MQTT message: " + e.getMessage());
 
          e.printStackTrace();
+      }
+   }
+
+   public void publishFailureEvent(FailureEvent event)
+   {
+      try
+      {
+         FailureMqttEvent mqttEvent =
+                  new FailureMqttEvent("ipad", "device.disconnect", event.getRoomId(),
+                           Instant.now().toString(), event.getRequestId(), "validation",
+                           event.getError(), null, Map.of("action", event.getError()));
+
+         String payload = objectMapper.writeValueAsString(mqttEvent);
+
+         mqttClient.publish(mqttConfig.getCommandTopic(),
+                  new MqttMessage(payload.getBytes(StandardCharsets.UTF_8)));
+
+         log.info("Failure event published to MQTT requestId={} roomId={}", event.getRequestId(),
+                  event.getRoomId());
+      }
+      catch (Exception e)
+      {
+         log.error("Failed to publish failure event to MQTT requestId={}", event.getRequestId(), e);
       }
    }
 }

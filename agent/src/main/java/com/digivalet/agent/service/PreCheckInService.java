@@ -15,8 +15,8 @@ import com.digivalet.agent.config.RoomRegistry;
 import com.digivalet.agent.config.SimulatorConfigLoader;
 import com.digivalet.agent.dto.PreCheckInRequest;
 import com.digivalet.agent.dto.RoomSimulatorCommand;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * @author Mandvee Vatsa

@@ -14,15 +14,15 @@ public class CoreIntentService
 
    private final MovieServiceClient movieServiceClient;
 
-   private final RmsService rmsService;
+   private final RmsDeviceClient rmsDeviceClient;
 
    private final FailureEventPublisher failureEventPublisher;
 
-   public CoreIntentService(MovieServiceClient movieServiceClient, RmsService rmsService,
+   public CoreIntentService(MovieServiceClient movieServiceClient, RmsDeviceClient rmsDeviceClient,
             FailureEventPublisher failureEventPublisher)
    {
       this.movieServiceClient = movieServiceClient;
-      this.rmsService = rmsService;
+      this.rmsDeviceClient = rmsDeviceClient;
       this.failureEventPublisher = failureEventPublisher;
    }
 
@@ -69,6 +69,6 @@ public class CoreIntentService
       log.info("Sending RMS command requestId={} roomId={} intent={}", request.getRequestId(),
                request.getRoomId(), request.getIntent());
 
-      rmsService.execute(request);
+      rmsDeviceClient.execute(request);
    }
 }

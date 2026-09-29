@@ -10,8 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class FailureEvent
 {
-   private String eventType;
-
    private String requestId;
 
    private String roomId;

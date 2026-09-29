@@ -1,3 +1,6 @@
+import org.springframework.web.client.RestClient;
+import org.springframework.stereotype.Component;
+
 @Component
 public class PreCheckinApiClient
 {

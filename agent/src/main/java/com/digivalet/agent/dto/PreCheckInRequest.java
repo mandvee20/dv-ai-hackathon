@@ -39,4 +39,6 @@ public class PreCheckInRequest
    private String idType;
 
    private String idNumber;
+   
+   private String roomNumber;
 }

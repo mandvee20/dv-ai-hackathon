@@ -1,9 +1,13 @@
 package com.digivalet.agent.config;
+
+import org.springframework.stereotype.Component;
+
+@Component
 public class MqttConfig {
 
     private String brokerHost;
     private int brokerPort;
-    private String clientId;
+//    private String clientId;
     private String commandTopic;
     private String responseTopic;
 
@@ -23,13 +27,13 @@ public class MqttConfig {
         this.brokerPort = brokerPort;
     }
 
-    public String getClientId() {
-        return clientId;
-    }
-
-    public void setClientId(String clientId) {
-        this.clientId = clientId;
-    }
+//    public String getClientId() {
+//        return clientId;
+//    }
+//
+//    public void setClientId(String clientId) {
+//        this.clientId = clientId;
+//    }
 
     public String getCommandTopic() {
         return commandTopic;

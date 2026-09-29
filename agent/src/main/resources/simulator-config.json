@@ -2,7 +2,6 @@
   "mqtt": {
     "brokerHost": "10.75.0.118",
     "brokerPort": 1883,
-    "clientId": "room-simulator",
     "commandTopic": "room/simulator/command",
     "responseTopic": "room/simulator/response"
   },

@@ -1,5 +1,6 @@
 package com.digivalet.agent.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,7 +23,8 @@ import lombok.extern.slf4j.Slf4j;
 public class PreCheckInController
 {
 
-   private final PreCheckInService preCheckInService;
+   @Autowired
+   private PreCheckInService preCheckInService;
 
    @PostMapping
    public ResponseEntity<Void> receivePreCheckIn(@Valid @RequestBody PreCheckInRequest request)

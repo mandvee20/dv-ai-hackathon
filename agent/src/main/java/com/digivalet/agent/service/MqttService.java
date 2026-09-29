@@ -4,12 +4,15 @@ import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.digivalet.agent.config.MqttConfig;
 import com.digivalet.agent.config.SimulatorConfigLoader;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.UUID;
 
 /**
  * @author Mandvee Vatsa
@@ -21,13 +24,8 @@ public class MqttService
 {
 
    private MqttClient mqttClient;
-
-   private final MqttConfig mqttConfig;
-
-   public MqttService(SimulatorConfigLoader configLoader)
-   {
-      this.mqttConfig = configLoader.getConfig().getMqtt();
-   }
+   @Autowired
+   public SimulatorConfigLoader simulatorConfigLoader;
 
    @PostConstruct
    public void connect()
@@ -37,9 +35,9 @@ public class MqttService
       {
 
          String brokerUrl =
-                  "tcp://" + mqttConfig.getBrokerHost() + ":" + mqttConfig.getBrokerPort();
+                  "tcp://" +simulatorConfigLoader.getConfig().getMqtt().getBrokerHost() + ":" + simulatorConfigLoader.getConfig().getMqtt().getBrokerPort();
 
-         mqttClient = new MqttClient(brokerUrl, mqttConfig.getClientId());
+         mqttClient = new MqttClient(brokerUrl, UUID.randomUUID().toString().substring(0, 8));
 
          MqttConnectOptions options = new MqttConnectOptions();
 
@@ -67,9 +65,9 @@ public class MqttService
    private void subscribe() throws MqttException
    {
 
-      mqttClient.subscribe(mqttConfig.getResponseTopic(), this::handleMessage);
+      mqttClient.subscribe(simulatorConfigLoader.getConfig().getMqtt().getResponseTopic(), this::handleMessage);
 
-      log.info("Subscribed to: " + mqttConfig.getResponseTopic());
+      log.info("Subscribed to: " + simulatorConfigLoader.getConfig().getMqtt().getResponseTopic());
    }
 
    private void handleMessage(String topic, MqttMessage message)

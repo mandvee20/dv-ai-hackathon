@@ -1,6 +1,6 @@
 package com.precheckin.simulator.scheduler;
 
-import com.precheckin.simulator.dto.FiasRequest;
+import com.digivalet.agent.dto.FiasRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;

@@ -11,7 +11,7 @@ public class PreCheckinApiClient
 
    public PreCheckinApiClient(RestClient.Builder restClientBuilder)
    {
-      this.restClient = restClientBuilder.baseUrl("http://localhost:8081").build();
+      this.restClient = restClientBuilder.baseUrl("http://localhost:8082").build();
    }
 
    public void sendPreCheckin(PreCheckinApiRequest request)

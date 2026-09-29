@@ -16,7 +16,7 @@ public class TcpServer
    private static final Logger log =
          LoggerFactory.getLogger(TcpServer.class);
 
-   private static final int TCP_PORT = 9000;
+   private static final int TCP_PORT = 3010;
 
    private final TcpClientHandler tcpClientHandler;
 

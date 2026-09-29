@@ -1,3 +1,6 @@
+package com.precheckin.simulator.apiclient;
+
+import com.precheckin.simulator.dto.PreCheckinApiRequest;
 import org.springframework.web.client.RestClient;
 import org.springframework.stereotype.Component;
 

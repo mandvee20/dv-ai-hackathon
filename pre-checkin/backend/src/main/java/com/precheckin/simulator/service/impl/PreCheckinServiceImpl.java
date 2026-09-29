@@ -1,5 +1,7 @@
 package com.precheckin.simulator.service.impl;
 
+import com.precheckin.simulator.apiclient.PreCheckinApiClient;
+import com.precheckin.simulator.dto.PreCheckinApiRequest;
 import com.precheckin.simulator.dto.PreCheckinRequest;
 import com.precheckin.simulator.entity.PreCheckin;
 import com.precheckin.simulator.repository.PreCheckinRepository;
@@ -89,10 +91,10 @@ public class PreCheckinServiceImpl implements PreCheckinService
                      savedPreCheckin.getMobileNumber());
 
             apiRequest.setArrivalDate(
-                     savedPreCheckin.getArrivalDate());
+                     String.valueOf(savedPreCheckin.getArrivalDate()));
 
             apiRequest.setDepartureDate(
-                     savedPreCheckin.getDepartureDate());
+                     String.valueOf(savedPreCheckin.getDepartureDate()));
 
             apiRequest.setEstimatedArrivalTime(
                      savedPreCheckin.getEstimatedArrivalTime());

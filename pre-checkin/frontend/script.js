@@ -27,6 +27,9 @@ form.addEventListener("submit", async function (event) {
         reservationNumber:
             document.getElementById("reservationNumber").value.trim(),
 
+        roomNumber:
+            document.getElementById("roomNumber").value.trim(),
+
         firstName:
             document.getElementById("firstName").value.trim(),
 

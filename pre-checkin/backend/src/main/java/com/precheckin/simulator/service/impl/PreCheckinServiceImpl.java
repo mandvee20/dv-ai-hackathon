@@ -62,6 +62,8 @@ public class PreCheckinServiceImpl implements PreCheckinService
 
             preCheckin.setUpdatedAt(LocalDateTime.now());
 
+            preCheckin.setRoomNumber(request.getRoomNumber());
+
             log.debug("Saving pre-check-in data for reservation: {}",
                      request.getReservationNumber());
 

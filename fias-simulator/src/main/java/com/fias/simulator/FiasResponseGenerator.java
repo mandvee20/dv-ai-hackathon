@@ -13,21 +13,25 @@ public class FiasResponseGenerator
 
    public List<String> generateRoomStatusEvents()
    {
-      int roomCount = 5 + random.nextInt(6);
-
       List<String> events = new ArrayList<>();
 
-      for (int i = 0; i < roomCount; i++)
+      // Room 101 is always Clean/Vacant
+      events.add("RE|RN101|RS3|");
+      for (int i = 0; i < 4; i++)
       {
-         String roomNumber = "101";
+         String roomNumber = String.valueOf(100 + random.nextInt(900));
 
-         int roomStatus = 3;
+         int roomStatus;
+
+         do
+         {
+            roomStatus = 1 + random.nextInt(6);
+         } while (roomStatus == 3);
 
          String event = "RE|RN" + roomNumber + "|RS" + roomStatus + "|";
 
          events.add(event);
       }
-
       return events;
    }
 }

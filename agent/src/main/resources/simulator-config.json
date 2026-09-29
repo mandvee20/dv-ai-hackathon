@@ -1,0 +1,121 @@
+{
+  "mqtt": {
+    "brokerHost": "10.75.0.118",
+    "brokerPort": 1883,
+    "clientId": "room-simulator",
+    "commandTopic": "room/simulator/command",
+    "responseTopic": "room/simulator/response"
+  },
+
+  "rooms": [
+    {
+      "roomId": "101",
+      "dvc": {
+        "ip": "10.10.10.10",
+        "port": 9010
+      },
+      "devices": [
+        {
+          "deviceId": "1",
+          "deviceType": "TV",
+          "operations": {
+            "ON": {
+              "result": "SUCCESS"
+            }
+          }
+        },
+        {
+          "deviceId": "2",
+          "deviceType": "LIGHT",
+          "operations": {
+            "ON": {
+              "result": "SUCCESS"
+            }
+          }
+        },
+        {
+          "deviceId": "3",
+          "deviceType": "CURTAIN",
+          "operations": {
+            "OPEN": {
+              "result": "SUCCESS"
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "roomId": "320",
+      "dvc": {
+        "ip": "10.10.10.11",
+        "port": 9010
+      },
+      "devices": [
+        {
+          "deviceId": "1",
+          "deviceType": "TV",
+          "operations": {
+            "ON": {
+              "result": "FAILURE",
+              "exception": "ConnectException",
+              "message": "Connection refused",
+              "description": "IP reachable but connection refused because the target port is not listening."
+            }
+          }
+        },
+        {
+          "deviceId": "2",
+          "deviceType": "LIGHT",
+          "operations": {
+            "ON": {
+              "result": "FAILURE",
+              "exception": "NoRouteToHostException",
+              "message": "No Route To Host",
+              "description": "IP is not reachable."
+            }
+          }
+        },
+        {
+          "deviceId": "3",
+          "deviceType": "CURTAIN",
+          "operations": {
+            "OPEN": {
+              "result": "FAILURE",
+              "exception": "SocketException",
+              "message": "Network is unreachable",
+              "description": "Network is not reachable. Check network connection."
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "roomId": "420",
+      "dvc": {
+        "ip": "10.10.10.12",
+        "port": 9010,
+        "health": {
+          "threadCount": 700,
+          "memoryUsage": "HIGH",
+          "memoryLeak": true
+        }
+      },
+      "devices": [
+        {
+          "deviceId": "1",
+          "deviceType": "TV",
+          "operations": {
+            "ON": {
+              "result": "FAILURE",
+              "exception": "SocketTimeoutException",
+              "message": "Connect timed out",
+              "description": "IP is reachable but connection timed out."
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

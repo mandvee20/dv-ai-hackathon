@@ -32,12 +32,5 @@ public class RoomRegistry {
     public Map<String, RoomConfig> getRooms() {
         return rooms;
     }
-    public Map<String, DeviceConfig> getDeviceMap() {
-
-       return devices.stream()
-               .collect(Collectors.toMap(
-                       DeviceConfig::getDeviceId,
-                       Function.identity()
-               ));
-   }
+    
 }

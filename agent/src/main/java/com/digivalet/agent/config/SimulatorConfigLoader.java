@@ -1,4 +1,10 @@
 package com.digivalet.agent.config;
+
+import java.io.IOException;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.stereotype.Component;
+import tools.jackson.databind.ObjectMapper;
+
 /**
  * @author Mandvee Vatsa
  * @date Sep 29, 2026

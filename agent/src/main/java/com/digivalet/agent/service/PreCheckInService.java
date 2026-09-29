@@ -1,6 +1,5 @@
 package com.digivalet.agent.service;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.log;
 import org.springframework.stereotype.Service;
 import com.digivalet.agent.dto.PreCheckInRequest;
 import lombok.extern.slf4j.Slf4j;

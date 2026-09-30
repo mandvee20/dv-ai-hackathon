@@ -36,8 +36,8 @@ public class MqttService
    @Autowired
    private ObjectMapper objectMapper;
 
-   @Autowired
-   private MqttConfig mqttConfig;
+//   @Autowired
+//   private MqttConfig mqttConfig;
 
    @PostConstruct
    public void connect()
@@ -219,7 +219,8 @@ public class MqttService
 
          String payload = objectMapper.writeValueAsString(mqttEvent);
 
-         mqttClient.publish(mqttConfig.getCommandTopic(),
+         mqttClient.publish(simulatorConfigLoader.getConfig().getMqtt()
+                           .getCommandTopic(),
                   new MqttMessage(payload.getBytes(StandardCharsets.UTF_8)));
 
          log.info("Failure event published to MQTT requestId={} roomId={}", event.getRequestId(),

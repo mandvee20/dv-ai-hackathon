@@ -79,6 +79,8 @@ public class MqttService
 
       mqttClient.subscribe(simulatorConfigLoader.getConfig().getMqtt().getResponseTopic(), this::handleMessage);
 
+
+
       log.info("Subscribed to: " + simulatorConfigLoader.getConfig().getMqtt().getResponseTopic());
    }
 
@@ -210,26 +212,57 @@ public class MqttService
 
    public void publishFailureEvent(FailureEvent event)
    {
-      try
-      {
+//      try
+//      {
          FailureMqttEvent mqttEvent =
                   new FailureMqttEvent("ipad", "device.disconnect", event.getRoomId(),
                            Instant.now().toString(), event.getRequestId(), "validation",
                            event.getError(), null, Map.of("action", event.getError()));
 
-         String payload = objectMapper.writeValueAsString(mqttEvent);
+//         String payload = objectMapper.writeValueAsString(mqttEvent);
+//
+//         mqttClient.publish(
+//                 "room/simulator/failure",
+////                 simulatorConfigLoader.getConfig().getMqtt()
+////                         .getCommandTopic(),
+//                  new MqttMessage(payload.getBytes(StandardCharsets.UTF_8)));
+//
+//
+//         log.info("Failure event published to MQTT requestId={} roomId={}", event.getRequestId(),
+//                  event.getRoomId());
+//      }
+//      catch (Exception e)
+//      {
+//         log.error("Failed to publish failure event to MQTT requestId={}", event.getRequestId(), e);
+//      }
+         String topic = "room/simulator/failure";
 
-         mqttClient.publish(simulatorConfigLoader.getConfig().getMqtt()
-                           .getCommandTopic(),
-                  new MqttMessage(payload.getBytes(StandardCharsets.UTF_8)));
+         try {
+            String payload = objectMapper.writeValueAsString(event);
 
-         log.info("Failure event published to MQTT requestId={} roomId={}", event.getRequestId(),
-                  event.getRoomId());
-      }
-      catch (Exception e)
-      {
-         log.error("Failed to publish failure event to MQTT requestId={}", event.getRequestId(), e);
-      }
+            MqttMessage message = new MqttMessage(payload.getBytes(StandardCharsets.UTF_8));
+            message.setQos(1);
+            message.setRetained(false);
+
+            mqttClient.publish(topic, message);
+
+            log.info(
+                    "Failure event published | topic={} | requestId={} | roomId={} | payload={}",
+                    topic,
+                    event.getRequestId(),
+                    event.getRoomId(),
+                    payload
+            );
+
+         } catch (Exception e) {
+            log.error(
+                    "Failure event publish failed | topic={} | requestId={} | roomId={}",
+                    topic,
+                    event.getRequestId(),
+                    event.getRoomId(),
+                    e
+            );
+         }
    }
    
    private void publishFailureEvent(
